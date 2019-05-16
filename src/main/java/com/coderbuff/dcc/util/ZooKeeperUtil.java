@@ -1,5 +1,6 @@
 package com.coderbuff.dcc.util;
 
+import com.coderbuff.dcc.vo.Node;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.*;
 
@@ -60,9 +61,10 @@ public enum ZooKeeperUtil {
      * @throws KeeperException KeeperException
      * @throws InterruptedException InterruptedException
      */
-    public String createNode(String path, ZooKeeper zk) throws KeeperException, InterruptedException {
+    public Node createNode(String path, ZooKeeper zk) throws KeeperException, InterruptedException {
         zk.create(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-        return path;
+        Node node = new Node(path);
+        return node;
     }
 
     /**

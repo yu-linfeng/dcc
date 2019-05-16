@@ -23,4 +23,12 @@ public class Node {
      * 节点数据
      */
     private String value;
+
+
+    public Node() {
+    }
+
+    public Node(String path) {
+        this.path = path;
+    }
 }

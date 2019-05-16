@@ -50,4 +50,17 @@ public class Message<T>{
         message.data = "";
         return message;
     }
+
+    /**
+     * 返回成功Node数据
+     * @param node 节点数据
+     * @return 成功
+     */
+    public static Message success(Node node) {
+        Message<Node> message = new Message<>();
+        message.code = 0;
+        message.msg = "成功";
+        message.data = node;
+        return message;
+    }
 }
