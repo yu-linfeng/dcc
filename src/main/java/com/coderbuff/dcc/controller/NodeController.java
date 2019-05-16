@@ -1,6 +1,7 @@
 package com.coderbuff.dcc.controller;
 
 import com.coderbuff.dcc.util.ZooKeeperUtil;
+import com.coderbuff.dcc.vo.Message;
 import org.apache.zookeeper.KeeperException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,16 +20,13 @@ import java.io.IOException;
 public class NodeController {
 
     @PostMapping("/createNode")
-    public String createNode() {
+    public Message createNode() {
         try {
             ZooKeeperUtil.INSTANCE.createNode("/test2", ZooKeeperUtil.INSTANCE.createZKConnection("localhost", 30000));
-        } catch (KeeperException e) {
+        } catch (KeeperException | InterruptedException | IOException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            return Message.failure();
         }
-        return "OK";
+        return Message.success();
     }
 }
