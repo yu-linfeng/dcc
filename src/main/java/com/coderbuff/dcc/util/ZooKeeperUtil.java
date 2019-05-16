@@ -56,11 +56,13 @@ public enum ZooKeeperUtil {
      * 创建节点
      * @param path 路径
      * @param zk zk连接
+     * @return 节点路径
      * @throws KeeperException KeeperException
      * @throws InterruptedException InterruptedException
      */
-    public void createNode(String path, ZooKeeper zk) throws KeeperException, InterruptedException {
+    public String createNode(String path, ZooKeeper zk) throws KeeperException, InterruptedException {
         zk.create(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        return path;
     }
 
     /**

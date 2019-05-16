@@ -29,4 +29,17 @@ public class NodeController {
         }
         return Message.success();
     }
+
+    @PostMapping("/deleteNode")
+    public Message deleteNode() {
+        try {
+            ZooKeeperUtil.INSTANCE.deleteNode("/test2", 0, ZooKeeperUtil.INSTANCE.createZKConnection("localhost", 30000));
+        } catch (KeeperException | InterruptedException | IOException e) {
+            e.printStackTrace();
+            return Message.failure();
+        }
+        return Message.success();
+    }
+
+
 }
