@@ -23,6 +23,7 @@ public class NodeController {
     @PostMapping("/createNode")
     public Message createNode() {
         Node node = null;
+
         try {
             node = ZooKeeperUtil.INSTANCE.createNode("/test2", ZooKeeperUtil.INSTANCE.createZKConnection("localhost", 30000));
         } catch (KeeperException | InterruptedException | IOException e) {
