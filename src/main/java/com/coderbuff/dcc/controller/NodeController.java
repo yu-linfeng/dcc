@@ -1,14 +1,14 @@
 package com.coderbuff.dcc.controller;
 
+import com.coderbuff.dcc.util.ZooKeeperConn;
 import com.coderbuff.dcc.util.ZooKeeperUtil;
 import com.coderbuff.dcc.vo.Message;
 import com.coderbuff.dcc.vo.Node;
 import org.apache.zookeeper.KeeperException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
 
 /**
  * Description:
@@ -20,13 +20,16 @@ import java.io.IOException;
 @RequestMapping("/node")
 public class NodeController {
 
+    @Autowired
+    private ZooKeeperConn zooKeeperConn;
+
     @PostMapping("/createNode")
     public Message createNode() {
         Node node = null;
 
         try {
-            node = ZooKeeperUtil.INSTANCE.createNode("/test2", ZooKeeperUtil.INSTANCE.createZKConnection("localhost", 30000));
-        } catch (KeeperException | InterruptedException | IOException e) {
+            node = ZooKeeperUtil.createNode("/test2", zooKeeperConn.getZKConnection());
+        } catch (KeeperException | InterruptedException e) {
             e.printStackTrace();
             return Message.failure();
         }
@@ -36,8 +39,8 @@ public class NodeController {
     @PostMapping("/deleteNode")
     public Message deleteNode() {
         try {
-            ZooKeeperUtil.INSTANCE.deleteNode("/test2", 0, ZooKeeperUtil.INSTANCE.createZKConnection("localhost", 30000));
-        } catch (KeeperException | InterruptedException | IOException e) {
+            ZooKeeperUtil.deleteNode("/test2", 0, zooKeeperConn.getZKConnection());
+        } catch (KeeperException | InterruptedException e) {
             e.printStackTrace();
             return Message.failure();
         }
