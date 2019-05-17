@@ -63,4 +63,17 @@ public class Message<T>{
         message.data = node;
         return message;
     }
+
+    /**
+     * 成功返回Property数据
+     * @param property 配置信息
+     * @return 成功
+     */
+    public static Message success(Property property) {
+        Message<Property> message = new Message<>();
+        message.code = 0;
+        message.msg = "成功";
+        message.data = property;
+        return message;
+    }
 }

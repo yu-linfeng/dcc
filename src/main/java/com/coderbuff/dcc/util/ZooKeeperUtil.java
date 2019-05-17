@@ -12,6 +12,7 @@ import java.io.IOException;
  * 2019-05-17
  * Created with OKevin.
  */
+@Slf4j
 public class ZooKeeperUtil {
 
     /**
@@ -39,5 +40,16 @@ public class ZooKeeperUtil {
         zk.delete(path, version);
     }
 
-
+    /**
+     * 设置节点的值
+     * @param key 节点路径
+     * @param value 值
+     * @param zk zk连接
+     * @throws KeeperException KeeperException
+     * @throws InterruptedException InterruptedException
+     */
+    public static void setProperty(String key, String value, ZooKeeper zk) throws KeeperException, InterruptedException {
+        log.debug("设置节点：{}的值为：{}", key, value);
+        zk.setData(key, value.getBytes(), -1);
+    }
 }

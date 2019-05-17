@@ -3,7 +3,8 @@ package com.coderbuff.dcc.controller;
 import com.coderbuff.dcc.util.ZooKeeperConn;
 import com.coderbuff.dcc.util.ZooKeeperUtil;
 import com.coderbuff.dcc.vo.Message;
-import com.coderbuff.dcc.vo.Node;
+import com.coderbuff.dcc.vo.Property;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.KeeperException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,38 +13,27 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Description:
- * 节点操作控制器
+ * 配置操作控制器
  * 2019-05-17
  * Created with OKevin.
  */
 @RestController
-@RequestMapping("/node")
-public class NodeController {
+@RequestMapping("/property")
+@Slf4j
+public class PropertyController {
 
     @Autowired
     private ZooKeeperConn zooKeeperConn;
 
-    @PostMapping("/createNode")
-    public Message createNode(Node node) {
 
+    @PostMapping("setProperty")
+    public Message setProperty(Property property) {
         try {
-            node = ZooKeeperUtil.createNode(node.getPath(), zooKeeperConn.getZKConnection());
+            ZooKeeperUtil.setProperty(property.getKey(), property.getValue(), zooKeeperConn.getZKConnection());
         } catch (KeeperException | InterruptedException e) {
-            e.printStackTrace();
+            log.error("设置节点：{}值失败, 错误信息={}", property.getKey(), e.getMessage(), e);
             return Message.failure();
         }
-        return Message.success(node);
+        return Message.success(property);
     }
-
-    @PostMapping("/deleteNode")
-    public Message deleteNode(Node node) {
-        try {
-            ZooKeeperUtil.deleteNode(node.getPath(), -1, zooKeeperConn.getZKConnection());
-        } catch (KeeperException | InterruptedException e) {
-            e.printStackTrace();
-            return Message.failure();
-        }
-        return Message.success();
-    }
-
 }
