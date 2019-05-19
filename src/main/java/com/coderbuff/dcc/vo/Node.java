@@ -1,5 +1,6 @@
 package com.coderbuff.dcc.vo;
 
+import com.alibaba.fastjson.JSON;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -20,9 +21,14 @@ public class Node {
     private String path;
 
     /**
+     * 节点创建时间
+     */
+    private Long created;
+
+    /**
      * 节点数据
      */
-    private String value;
+    private JSON value;
 
 
     public Node() {

@@ -3,13 +3,8 @@
 		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true" :model="filters">
 				<el-form-item>
-					<el-button type="primary" @click="handleAdd">新增</el-button>
+					<el-button type="primary" @click="addNode">新增</el-button>
 				</el-form-item>
-				<!--节点暂不提供编辑
-				<el-form-item>
-					<el-button type="warning" @click="handleEdit">修改</el-button>
-				</el-form-item>
-				-->
 				<el-form-item>
 					<el-button type="danger" @click="handleDel">删除</el-button>
 				</el-form-item>
@@ -17,7 +12,7 @@
 					<el-input v-model="filters.name" placeholder="Path"></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" v-on:click="getUsers">查询</el-button>
+					<el-button type="primary" v-on:click="getNodes">查询</el-button>
 				</el-form-item>
 			</el-form>
 		</el-col>
@@ -29,7 +24,7 @@
 			</el-table-column>
 			<el-table-column prop="path" label="Path名称">
 			</el-table-column>
-			<el-table-column prop="created" label="创建时间">
+			<el-table-column prop="created" label="创建时间" :formatter="formatDate">
 			</el-table-column>
 			
 		</el-table>
@@ -56,6 +51,7 @@
 
 <script>
 	import axios from 'axios';
+	import fecha from 'fecha';
 	import util from '../../common/js/util'
 	//import { getUserListPage, removeUser, batchRemoveUser, editUser, addUser, queryPath } from '../../api/api';
 
@@ -102,10 +98,10 @@
 		methods: {
 			handleCurrentChange(val) {
 				this.page = val;
-				this.getUsers();
+				this.getNodes();
 			},
 			//获取用户列表
-			getUsers() {
+			getNodes() {
 				let para = {
 					path: "",
 					value: ""
@@ -129,65 +125,41 @@
 				});
 			},
 			//删除
-			handleDel: function (index, row) {
+			handleDel: function () {
+				if (this.sels.length !== 1) {
+					this.$message({
+						message: '删除失败，最多只能删除一个Path',
+						type: 'error'
+					});
+					return ;
+				}
+				var node = this.sels[0];
+
 				this.$confirm('确认删除该记录吗?', '提示', {
-					type: 'warning'
 				}).then(() => {
+
 					this.listLoading = true;
-					//NProgress.start();
-					let para = { id: row.id };
-					removeUser(para).then((res) => {
+
+					axios.post(`http://localhost:8080/node/deleteNode`, {
+						path : node.path
+					}).then((response) => {
 						this.listLoading = false;
-						//NProgress.done();
 						this.$message({
 							message: '删除成功',
 							type: 'success'
 						});
-						this.getUsers();
+						this.getNodes();
 					});
+
 				}).catch(() => {
 
 				});
 			},
-			//显示编辑界面
-			handleEdit: function (index, row) {
-				this.editFormVisible = true;
-				this.editForm = Object.assign({}, row);
-			},
-			//显示新增界面
-			handleAdd: function () {
+			addNode: function () {
 				this.addFormVisible = true;
 				this.addForm = {
-					name: '',
-					sex: -1,
-					age: 0,
-					birth: '',
-					addr: ''
+					path: ''
 				};
-			},
-			//编辑
-			editSubmit: function () {
-				this.$refs.editForm.validate((valid) => {
-					if (valid) {
-						this.$confirm('确认提交吗？', '提示', {}).then(() => {
-							this.editLoading = true;
-							//NProgress.start();
-							let para = Object.assign({}, this.editForm);
-							para.birth = (!para.birth || para.birth == '') ? '' : util.formatDate.format(new Date(para.birth), 'yyyy-MM-dd');
-							editUser(para).then((res) => {
-								this.editLoading = false;
-								//NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.$refs['editForm'].resetFields();
-								this.editFormVisible = false;
-								this.getUsers();
-							});
-						});
-					}
-				});
 			},
 			//新增
 			addSubmit: function () {
@@ -195,19 +167,20 @@
 					if (valid) {
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.addLoading = true;
-							//NProgress.start();
-							let para = Object.assign({}, this.addForm);
-							para.birth = (!para.birth || para.birth == '') ? '' : util.formatDate.format(new Date(para.birth), 'yyyy-MM-dd');
-							addUser(para).then((res) => {
+							let node = {};
+							node.path = this.addForm.path
+							axios.post(`http://localhost:8080/node/createNode`, {
+								path : this.addForm.path
+							}).then((response) => {
+								this.paths = response.data.data;
 								this.addLoading = false;
-								//NProgress.done();
 								this.$message({
 									message: '提交成功',
 									type: 'success'
 								});
 								this.$refs['addForm'].resetFields();
 								this.addFormVisible = false;
-								this.getUsers();
+								this.getNodes();
 							});
 						});
 					}
@@ -215,6 +188,7 @@
 			},
 			selsChange: function (sels) {
 				this.sels = sels;
+				console.info(sels)
 			},
 			//批量删除
 			batchRemove: function () {
@@ -232,15 +206,18 @@
 							message: '删除成功',
 							type: 'success'
 						});
-						this.getUsers();
+						this.getNodes();
 					});
 				}).catch(() => {
 
 				});
+			},
+			formatDate: function (row, column, cellValue) {
+				return cellValue ? fecha.format(new Date(cellValue), 'YYYY-MM-DD hh:mm:ss') : '';
 			}
 		},
 		mounted() {
-			this.getUsers();
+			this.getNodes();
 		}
 	}
 
