@@ -4,11 +4,15 @@ import com.coderbuff.dcc.util.ZooKeeperConn;
 import com.coderbuff.dcc.util.ZooKeeperUtil;
 import com.coderbuff.dcc.vo.Message;
 import com.coderbuff.dcc.vo.Node;
+import com.google.common.collect.Lists;
 import org.apache.zookeeper.KeeperException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Description:
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/node")
+@CrossOrigin
 public class NodeController {
 
     @Autowired
@@ -46,4 +51,13 @@ public class NodeController {
         return Message.success();
     }
 
+    @PostMapping("/queryNode")
+    public Message queryNode(Node node) {
+        List<Node> nodeList = Lists.newArrayList();
+        for (int i = 0; i < 10; i++) {
+            Node aNode = new Node("/" + i);
+            nodeList.add(aNode);
+        }
+        return Message.success(nodeList);
+    }
 }

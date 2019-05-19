@@ -76,4 +76,12 @@ public class Message<T>{
         message.data = property;
         return message;
     }
+
+    public static<T> Message success(T data) {
+        Message<T> message = new Message<>();
+        message.code = 0;
+        message.msg = "成功";
+        message.data = data;
+        return message;
+    }
 }
