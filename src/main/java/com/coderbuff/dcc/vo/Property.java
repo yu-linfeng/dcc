@@ -23,4 +23,9 @@ public class Property {
      * 配置值
      */
     private String value;
+
+    /**
+     * 节点描述说明
+     */
+    private String desc;
 }

@@ -6,7 +6,7 @@
                     <el-button type="primary" @click="addNode">新增</el-button>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="danger" @click="handleDel">编辑</el-button>
+                    <el-button type="info" @click="handleDel">编辑</el-button>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="danger" @click="handleDel">删除</el-button>
@@ -19,9 +19,9 @@
             </el-table-column>
             <el-table-column type="index" width="70" label="序号">
             </el-table-column>
-            <el-table-column prop="path" label="属性名称">
+            <el-table-column prop="key" label="属性名称">
             </el-table-column>
-            <el-table-column prop="created" label="属性值" :formatter="formatDate">
+            <el-table-column prop="desc" label="说明">
             </el-table-column>
 
         </el-table>
@@ -29,8 +29,17 @@
         <!--新增界面-->
         <el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false" width="20%">
             <el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
-                <el-form-item label="Path" prop="path">
+                <el-form-item label="属性名称" prop="path">
                     <el-input v-model="addForm.path" auto-complete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="属性类型" prop="path">
+                    <el-select v-model="propertyValueType" placeholder="请选择">
+                        <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="属性值" prop="path">
+                    <el-input type="textarea" :autosize="{ minRows: 5, maxRows: 10}" v-model="addForm.path" auto-complete="off"></el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -50,6 +59,13 @@
     export default {
         data() {
             return {
+                options: [
+                    {
+                        value: 'json',
+                        label: 'json'
+                    }
+                ],
+                propertyValueType: 'json',
                 filters: {
                     path: ''
                 },
@@ -64,7 +80,7 @@
                 editLoading: false,
                 editFormRules: {
                     path: [
-                        { required: true, message: '请输入Path', trigger: 'blur' }
+                        { required: true, message: '请输入属性名称', trigger: 'blur' }
                     ]
                 },
                 //编辑界面数据
@@ -77,7 +93,7 @@
                 addLoading: false,
                 addFormRules: {
                     path: [
-                        { required: true, message: '请输入Path', trigger: 'blur' }
+                        { required: true, message: '请输入名称', trigger: 'blur' }
                     ]
                 },
                 //新增界面数据
@@ -166,9 +182,6 @@
             },
             selsChange: function (sels) {
                 this.sels = sels;
-            },
-            formatDate: function (row, column, cellValue) {
-                return cellValue ? fecha.format(new Date(cellValue), 'YYYY-MM-DD hh:mm:ss') : '';
             },
             queryProperty: function (row, column, event) {
                 console.info(row);
