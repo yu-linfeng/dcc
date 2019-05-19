@@ -1,10 +1,13 @@
 package com.coderbuff.dcc.util;
 
 import com.coderbuff.dcc.vo.Node;
+import com.coderbuff.dcc.vo.Property;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.*;
+import org.apache.zookeeper.data.Stat;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Description:
@@ -52,4 +55,24 @@ public class ZooKeeperUtil {
         log.debug("设置节点：{}的值为：{}", key, value);
         zk.setData(key, value.getBytes(), -1);
     }
+
+    /**
+     * 获取节点配置
+     * @param key 节点路径
+     * @param zk zk连接
+     * @return 节点配置
+     * @throws KeeperException KeeperException
+     * @throws InterruptedException InterruptedException
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
+     */
+    public static Property getProperty(String key, ZooKeeper zk) throws KeeperException, InterruptedException, UnsupportedEncodingException {
+        log.debug("查询节点配置：{}的值", key);
+        byte[] nodeProperty = zk.getData(key, false, new Stat());
+        String value = new String(nodeProperty, "UTF-8");
+        Property property = new Property();
+        property.setKey(key);
+        property.setValue(value);
+        return property;
+    }
+
 }

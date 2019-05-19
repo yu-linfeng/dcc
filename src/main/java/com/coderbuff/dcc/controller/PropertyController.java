@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.UnsupportedEncodingException;
+
 /**
  * Description:
  * 配置操作控制器
@@ -31,6 +33,18 @@ public class PropertyController {
         try {
             ZooKeeperUtil.setProperty(property.getKey(), property.getValue(), zooKeeperConn.getZKConnection());
         } catch (KeeperException | InterruptedException e) {
+            log.error("设置节点：{}值失败, 错误信息={}", property.getKey(), e.getMessage(), e);
+            return Message.failure();
+        }
+        return Message.success(property);
+    }
+
+    @PostMapping("getProperty")
+    public Message getProperty(Property property) {
+        try {
+            ZooKeeperUtil.getProperty(property.getKey(), zooKeeperConn.getZKConnection());
+        } catch (KeeperException | InterruptedException | UnsupportedEncodingException e) {
+            e.printStackTrace();
             log.error("设置节点：{}值失败, 错误信息={}", property.getKey(), e.getMessage(), e);
             return Message.failure();
         }
