@@ -26,14 +26,13 @@ let routes = [
         children: [
             { path: '/main', component: Main, name: '主页', hidden: true },
             { path: '/table', component: Table, name: '节点管理' },
-            { path: '/table/property', component: Property, name: '节点配置', hidden: true }
+            {
+                path: '/table/property/:path',
+                component: Property,
+                name: '节点配置',
+                hidden: true
+            }
         ]
-    },
-    {
-        path: '/table/property',
-        component: Property,
-        name: '节点配置',
-        hidden: true
     },
     {
         path: '*',

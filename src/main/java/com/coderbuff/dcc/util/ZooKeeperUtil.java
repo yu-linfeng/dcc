@@ -65,14 +65,12 @@ public class ZooKeeperUtil {
      * @throws InterruptedException InterruptedException
      * @throws UnsupportedEncodingException UnsupportedEncodingException
      */
-    public static Property getProperty(String key, ZooKeeper zk) throws KeeperException, InterruptedException, UnsupportedEncodingException {
+    public static String getProperty(String key, ZooKeeper zk) throws KeeperException, InterruptedException, UnsupportedEncodingException {
         log.debug("查询节点配置：{}的值", key);
         byte[] nodeProperty = zk.getData(key, false, new Stat());
         String value = new String(nodeProperty, "UTF-8");
-        Property property = new Property();
-        property.setKey(key);
-        property.setValue(value);
-        return property;
+
+        return value;
     }
 
 }

@@ -174,12 +174,10 @@
 				return cellValue ? fecha.format(new Date(cellValue), 'YYYY-MM-DD hh:mm:ss') : '';
 			},
 			queryProperty: function (row, column, event) {
+				let path = row.path.replace("/", " %2F");
 				this.$router.push({
-					path: `/table/property`
+					path: "/table/property/%2Ftest",
 				});
-				console.info(row);
-				console.info(column);
-				console.info(event);
 			}
 		},
 		mounted() {

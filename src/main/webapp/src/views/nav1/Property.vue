@@ -106,10 +106,11 @@
         methods: {
             handleCurrentChange(val) {
                 this.page = val;
-                this.getNodes();
+                this.getProperty();
             },
-            //获取用户列表
-            getNodes() {
+            //获取节点配置信息
+            getProperty() {
+                console.info(this.$route.params.path);
                 /*this.listLoading = true;
                 axios.post(`http://localhost:8080/node/queryNode`, {
 
@@ -142,7 +143,7 @@
                             message: '删除成功',
                             type: 'success'
                         });
-                        this.getNodes();
+                        this.getProperty();
                     });
 
                 }).catch(() => {
@@ -174,7 +175,7 @@
                                 });
                                 this.$refs['addForm'].resetFields();
                                 this.addFormVisible = false;
-                                this.getNodes();
+                                this.getProperty();
                             });
                         });
                     }
@@ -190,7 +191,7 @@
             }
         },
         mounted() {
-            this.getNodes();
+            this.getProperty();
         }
     }
 
