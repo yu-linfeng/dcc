@@ -19,7 +19,7 @@
             </el-table-column>
             <el-table-column type="index" width="70" label="序号">
             </el-table-column>
-            <el-table-column prop="name" label="属性名称">
+            <el-table-column prop="name" width="300" label="属性名称">
             </el-table-column>
             <el-table-column prop="desc" label="说明">
             </el-table-column>
@@ -30,7 +30,7 @@
         <el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false" width="20%">
             <el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
                 <el-form-item label="配置名称" prop="itemName">
-                    <el-input v-model="addForm.path" auto-complete="off"></el-input>
+                    <el-input v-model="addForm.itemName" auto-complete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="配置类型">
                     <el-select v-model="propertyValueType" placeholder="请选择">
@@ -203,8 +203,43 @@
                 this.$refs.addForm.validate((valid) => {
                     if (valid) {
                         this.$confirm('确认提交吗？', '提示', {}).then(() => {
-                            this.addLoading = true;
+                            //this.addLoading = true;
+                            let configObject = JSON.parse(this.addForm.itemValue);
+                            let configs = [];
+                            for (let key in configObject) {
+                                let config = {
+                                    name : key,
+                                    value : configObject[key]
+                                };
+                                configs.push(config)
+                            }
+                            let property = {
+                                "name": this.addForm.itemName,
+                                "configs":configs
+                            };
+
                             let node = {};
+                            node.path = this.$route.params.path;
+                            this.properties.push(property);
+                            node.properties = this.properties;
+
+                            console.info(node);
+                            axios.post(`http://localhost:8080/property/setProperty`, {
+                                path: node.path,
+                                properties: node.properties
+                            }).then((response) => {
+                                this.addLoading = false;
+                                this.$message({
+                                    message: '提交成功',
+                                    type: 'success'
+                                });
+                                this.$refs['addForm'].resetFields();
+                                this.addFormVisible = false;
+                                this.getNodeProperty();
+                            });
+
+
+                            /*let node = {};
                             node.path = this.addForm.path
                             axios.post(`http://localhost:8080/node/createNode`, {
                                 path : this.addForm.path
@@ -218,7 +253,7 @@
                                 this.$refs['addForm'].resetFields();
                                 this.addFormVisible = false;
                                 this.getNodeProperty();
-                            });
+                            });*/
                         });
                     }
                 });
