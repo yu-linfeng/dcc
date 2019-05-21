@@ -14,12 +14,12 @@
             </el-form>
         </el-col>
 
-        <el-table :data="paths" highlight-current-row v-loading="listLoading" @selection-change="selsChange" @row-click="queryProperty" style="width: 100%;">
+        <el-table :data="properties" highlight-current-row v-loading="listLoading" @selection-change="selsChange" @cell-click="viewNodePropertyItem" style="width: 100%;">
             <el-table-column type="selection" width="55">
             </el-table-column>
             <el-table-column type="index" width="70" label="序号">
             </el-table-column>
-            <el-table-column prop="key" label="属性名称">
+            <el-table-column prop="name" label="属性名称">
             </el-table-column>
             <el-table-column prop="desc" label="说明">
             </el-table-column>
@@ -47,6 +47,27 @@
                 <el-button type="primary" @click.native="addSubmit" :loading="addLoading">提交</el-button>
             </div>
         </el-dialog>
+
+        <!--查看界面-->
+        <el-dialog title="查看" v-model="viewFormVisible" :close-on-click-modal="false" width="20%">
+            <el-form :model="viewForm" label-width="80px" ref="viewForm">
+                <el-form-item label="配置名称" prop="itemName">
+                    <el-input v-model="viewForm.itemName" auto-complete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="配置类型">
+                    <el-select v-model="propertyValueType" placeholder="请选择">
+                        <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="配置值" prop="itemValue">
+                    <el-input type="textarea" :autosize="{ minRows: 5, maxRows: 10}" v-model="viewForm.itemValue" auto-complete="off"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click.native="viewFormVisible = false">关闭</el-button>
+            </div>
+        </el-dialog>
     </section>
 </template>
 
@@ -70,6 +91,7 @@
                     path: ''
                 },
                 configs: [],
+                properties:[],
                 total: 0,
                 page: 1,
                 listLoading: false,
@@ -108,8 +130,16 @@
                     itemValue: [
                        { required: true, message: '请输入配置值', trigger: 'blur' } 
                     ]
-                }
+                },
 
+                /**
+                 * 查看
+                 */
+                viewFormVisible:false,
+                viewForm: {
+                    itemName: '',
+                    itemValue: ''
+                }
                 
             }
         },
@@ -127,7 +157,7 @@
                 axios.post(`http://localhost:8080/property/getProperty`, {
                     path : path
                 }).then((response) => {
-                    console.info(response.data.data);
+                    this.properties = response.data.data.properties;
                     this.listLoading = false;
                 })
             },
@@ -196,10 +226,18 @@
             selsChange: function (sels) {
                 this.sels = sels;
             },
-            queryProperty: function (row, column, event) {
-                console.info(row);
-                console.info(column);
-                console.info(event);
+            viewNodePropertyItem: function (row, column, cell, event) {
+                this.viewFormVisible = true;
+                let itemValueJson = {};
+                for (let i = 0; i < row.configs.length; i++) {
+                    itemValueJson[row.configs[i].name] = row.configs[i].value;
+                }
+                this.viewForm = {
+                    itemName: row.name,
+                    itemValue: JSON.stringify(itemValueJson)
+                };
+                debugger;
+                console.info(row.configs);
             }
         },
         mounted() {
