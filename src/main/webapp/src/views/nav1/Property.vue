@@ -3,10 +3,13 @@
         <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
             <el-form :inline="true" :model="filters">
                 <el-form-item>
+                    <el-button type="success" @click="viewNodePropertyItem">查看</el-button>
+                </el-form-item>
+                <el-form-item>
                     <el-button type="primary" @click="addNode">新增</el-button>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="info" @click="handleDel">编辑</el-button>
+                    <el-button type="info" @click="editNode">编辑</el-button>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="danger" @click="handleDel">删除</el-button>
@@ -14,7 +17,7 @@
             </el-form>
         </el-col>
 
-        <el-table :data="properties" highlight-current-row v-loading="listLoading" @selection-change="selsChange" @cell-click="viewNodePropertyItem" style="width: 100%;">
+        <el-table :data="properties" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
             <el-table-column type="selection" width="55">
             </el-table-column>
             <el-table-column type="index" width="70" label="序号">
@@ -45,6 +48,28 @@
             <div slot="footer" class="dialog-footer">
                 <el-button @click.native="addFormVisible = false">取消</el-button>
                 <el-button type="primary" @click.native="addSubmit" :loading="addLoading">提交</el-button>
+            </div>
+        </el-dialog>
+
+        <!--编辑界面-->
+        <el-dialog title="编辑" v-model="editFormVisible" :close-on-click-modal="false" width="20%">
+            <el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="addForm">
+                <el-form-item label="配置名称" prop="itemName">
+                    <el-input v-model="editForm.itemName" auto-complete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="配置类型">
+                    <el-select v-model="propertyValueType" placeholder="请选择">
+                        <el-option  v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="配置值" prop="itemValue">
+                    <el-input type="textarea" :autosize="{ minRows: 5, maxRows: 10}" v-model="editForm.itemValue" auto-complete="off"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click.native="editFormVisible = false">取消</el-button>
+                <el-button type="primary" @click.native="editSubmit" :loading="addLoading">提交</el-button>
             </div>
         </el-dialog>
 
@@ -195,7 +220,19 @@
             addNode: function () {
                 this.addFormVisible = true;
                 this.addForm = {
-                    path: ''
+                    itemName: '',
+                    itemValue: ''
+                };
+            },
+            editNode: function () {
+                this.editFormVisible = true;
+                let itemValueJson = {};
+                for (let i = 0; i < this.sels[0].configs.length; i++) {
+                    itemValueJson[this.sels[0].configs[i].name] = this.sels[0].configs[i].value;
+                }
+                this.editForm = {
+                    itemName: this.sels[0].name,
+                    itemValue: JSON.stringify(itemValueJson)
                 };
             },
             //新增
@@ -237,31 +274,53 @@
                                 this.addFormVisible = false;
                                 this.getNodeProperty();
                             });
-
-
-                            /*let node = {};
-                            node.path = this.addForm.path
-                            axios.post(`http://localhost:8080/node/createNode`, {
-                                path : this.addForm.path
-                            }).then((response) => {
-                                this.paths = response.data.data;
-                                this.addLoading = false;
-                                this.$message({
-                                    message: '提交成功',
-                                    type: 'success'
-                                });
-                                this.$refs['addForm'].resetFields();
-                                this.addFormVisible = false;
-                                this.getNodeProperty();
-                            });*/
                         });
                     }
+                });
+            },
+            editSubmit: function () {
+                this.$confirm('确认提交吗？', '提示', {}).then(() => {
+                    //this.addLoading = true;
+                    let configObject = JSON.parse(this.editForm.itemValue);
+                    let configs = [];
+                    for (let key in configObject) {
+                        let config = {
+                            name : key,
+                            value : configObject[key]
+                        };
+                        configs.push(config)
+                    }
+                    let property = {
+                        "name": this.editForm.itemName,
+                        "configs":configs
+                    };
+
+                    let node = {};
+                    node.path = this.$route.params.path;
+                    this.properties.push(property);
+                    node.properties = this.properties;
+
+                    console.info(node);
+                    axios.post(`http://localhost:8080/property/setProperty`, {
+                        path: node.path,
+                        properties: node.properties
+                    }).then((response) => {
+                        this.addLoading = false;
+                        this.$message({
+                            message: '提交成功',
+                            type: 'success'
+                        });
+                        this.$refs['editForm'].resetFields();
+                        this.editFormVisible = false;
+                        this.getNodeProperty();
+                    });
                 });
             },
             selsChange: function (sels) {
                 this.sels = sels;
             },
-            viewNodePropertyItem: function (row, column, cell, event) {
+            viewNodePropertyItem: function () {
+                let row = this.sels[0];
                 this.viewFormVisible = true;
                 let itemValueJson = {};
                 for (let i = 0; i < row.configs.length; i++) {
@@ -271,8 +330,6 @@
                     itemName: row.name,
                     itemValue: JSON.stringify(itemValueJson)
                 };
-                debugger;
-                console.info(row.configs);
             }
         },
         mounted() {
