@@ -4,12 +4,14 @@ import com.coderbuff.dcc.util.ZooKeeperConn;
 import com.coderbuff.dcc.util.ZooKeeperUtil;
 import com.coderbuff.dcc.vo.Config;
 import com.coderbuff.dcc.vo.Message;
+import com.coderbuff.dcc.vo.Node;
 import com.coderbuff.dcc.vo.Property;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.KeeperException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,34 +34,33 @@ public class PropertyController {
 
 
     @PostMapping("setProperty")
-    public Message setProperty(Property property) {
+    public Message setProperty(@RequestBody Node node) {
         try {
-            /**
-             * value
-             */
-            ZooKeeperUtil.setProperty(property.getPath(), property.getValue().toString(), zooKeeperConn.getZKConnection());
+            ZooKeeperUtil.setProperty(node.getPath(), node.strValue(), zooKeeperConn.getZKConnection());
         } catch (KeeperException | InterruptedException e) {
-            log.error("设置节点：{}值失败, 错误信息={}", property.getPath(), e.getMessage(), e);
+            log.error("设置节点：{}值失败, 错误信息={}", node.getPath(), e.getMessage(), e);
             return Message.failure();
         }
-        return Message.success(property);
+        return Message.success(node);
     }
 
     @PostMapping("getProperty")
-    public Message getProperty(Property property) {
-        List<Property> propertyValue = Lists.newArrayList();
+    public Message getProperty(Node node) {
+        Node propertyValue = new Node();
         try {
-            String value = ZooKeeperUtil.getProperty(property.getPath(), zooKeeperConn.getZKConnection());
-            propertyValue = convert(property.getPath(), value);
+            String value = ZooKeeperUtil.getProperty(node.getPath(), zooKeeperConn.getZKConnection());
+            propertyValue = convert(node.getPath(), value);
         } catch (KeeperException | InterruptedException | UnsupportedEncodingException e) {
             e.printStackTrace();
-            log.error("设置节点：{}值失败, 错误信息={}", property.getPath(), e.getMessage(), e);
+            log.error("设置节点：{}值失败, 错误信息={}", node.getPath(), e.getMessage(), e);
             return Message.failure();
         }
         return Message.success(propertyValue);
     }
 
-    private List<Property> convert(String path, String value) {
+    private Node convert(String path, String value) {
+        Node node = new Node();
+           /*
         Property property = new Property();
         property.setPath(path);
         property.setName("switch");
@@ -77,7 +78,7 @@ public class PropertyController {
         property.setValue(configs);
         property.setDesc("开关配置");
         List<Property> properties = Lists.newArrayList();
-        properties.add(property);
-        return properties;
+        properties.add(property);*/
+        return node;
     }
 }

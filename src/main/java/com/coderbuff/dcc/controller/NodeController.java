@@ -53,7 +53,6 @@ public class NodeController {
         List<Node> nodeList = Lists.newArrayList();
         for (int i = 0; i < 10; i++) {
             Node aNode = new Node("/" + i);
-            aNode.setCreated(System.currentTimeMillis());
             nodeList.add(aNode);
         }
         return Message.success(nodeList);
