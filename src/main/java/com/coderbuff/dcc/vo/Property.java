@@ -24,7 +24,7 @@ public class Property {
     /**
      * key对应的所有配置值
      */
-    private List<Config> config;
+    private List<Config> configs;
 
     /**
      * 节点描述说明

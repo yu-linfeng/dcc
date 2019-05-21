@@ -1,5 +1,8 @@
 package com.coderbuff.dcc.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.coderbuff.dcc.util.ZooKeeperConn;
 import com.coderbuff.dcc.util.ZooKeeperUtil;
 import com.coderbuff.dcc.vo.Config;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -45,7 +49,7 @@ public class PropertyController {
     }
 
     @PostMapping("getProperty")
-    public Message getProperty(Node node) {
+    public Message getProperty(@RequestBody Node node) {
         Node propertyValue = new Node();
         try {
             String value = ZooKeeperUtil.getProperty(node.getPath(), zooKeeperConn.getZKConnection());
@@ -60,25 +64,22 @@ public class PropertyController {
 
     private Node convert(String path, String value) {
         Node node = new Node();
-           /*
-        Property property = new Property();
-        property.setPath(path);
-        property.setName("switch");
-        Config config = new Config();
-        config.setName("isEnableDb");
-        config.setValue(false);
-        config.setDesc("是否降级到数据库");
-        Config config1 = new Config();
-        config1.setName("xxIsEnableCache");
-        config1.setValue(true);
-        config1.setDesc("xx数据是否读缓存");
-        List<Config> configs = Lists.newArrayList();
-        configs.add(config);
-        configs.add(config1);
-        property.setValue(configs);
-        property.setDesc("开关配置");
+        node.setPath(path);
         List<Property> properties = Lists.newArrayList();
-        properties.add(property);*/
+        JSONObject map = JSON.parseObject(value);
+        JSONArray propertyArray = JSONArray.parseArray(map.getString("properties"));
+        for (int i = 0; i < propertyArray.size(); i++) {
+            JSONObject propertyObject = propertyArray.getJSONObject(i);
+            Property property = new Property();
+            property.setName(propertyObject.getString("name"));
+            property.setDesc(propertyObject.getString("desc"));
+            property.setCreated(propertyObject.getLong("created"));
+            List<Config> configs = Lists.newArrayList(JSONArray.parseArray(propertyObject.getString("configs"), Config.class));
+            property.setConfigs(configs);
+            properties.add(property);
+
+        }
+        node.setProperties(properties);
         return node;
     }
 }
