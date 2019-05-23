@@ -183,6 +183,9 @@
                     path : path
                 }).then((response) => {
                     this.properties = response.data.data.properties;
+                    if (this.properties === undefined) {
+                        this.properties = [];
+                    }
                     this.listLoading = false;
                 })
             },
@@ -241,6 +244,7 @@
                     if (valid) {
                         this.$confirm('确认提交吗？', '提示', {}).then(() => {
                             //this.addLoading = true;
+                            debugger;
                             let configObject = JSON.parse(this.addForm.itemValue);
                             let configs = [];
                             for (let key in configObject) {

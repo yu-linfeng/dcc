@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.KeeperException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +54,9 @@ public class PropertyController {
         Node propertyValue = new Node();
         try {
             String value = ZooKeeperUtil.getProperty(node.getPath(), zooKeeperConn.getZKConnection());
+            if (StringUtils.isEmpty(value)) {
+                return Message.success();
+            }
             propertyValue = convert(node.getPath(), value);
         } catch (KeeperException | InterruptedException | UnsupportedEncodingException e) {
             e.printStackTrace();

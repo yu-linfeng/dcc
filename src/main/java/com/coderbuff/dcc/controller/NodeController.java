@@ -51,9 +51,10 @@ public class NodeController {
     @PostMapping("/queryNode")
     public Message queryNode(Node node) {
         List<Node> nodeList = Lists.newArrayList();
-        for (int i = 0; i < 10; i++) {
-            Node aNode = new Node("/" + i);
-            nodeList.add(aNode);
+        try {
+            nodeList = ZooKeeperUtil.listAllNode("/", zooKeeperConn.getZKConnection());
+        } catch (KeeperException | InterruptedException e) {
+            e.printStackTrace();
         }
         return Message.success(nodeList);
     }

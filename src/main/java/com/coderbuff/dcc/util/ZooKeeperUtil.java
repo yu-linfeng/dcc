@@ -2,12 +2,14 @@ package com.coderbuff.dcc.util;
 
 import com.coderbuff.dcc.vo.Node;
 import com.coderbuff.dcc.vo.Property;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 /**
  * Description:
@@ -68,9 +70,49 @@ public class ZooKeeperUtil {
     public static String getProperty(String key, ZooKeeper zk) throws KeeperException, InterruptedException, UnsupportedEncodingException {
         log.debug("查询节点配置：{}的值", key);
         byte[] nodeProperty = zk.getData(key, false, new Stat());
+        if (nodeProperty == null) {
+            return "";
+        }
         String value = new String(nodeProperty, "UTF-8");
 
         return value;
     }
+
+
+    /**
+     * 遍历叶子节点
+     * @param path 遍历起始路径
+     * @param zk zk连接
+     * @return 节点
+     * @throws KeeperException KeeperException
+     * @throws InterruptedException InterruptedException
+     */
+    public static List<Node> listAllNode(String path, ZooKeeper zk) throws KeeperException, InterruptedException {
+        List<Node> nodes = Lists.newArrayList();
+        traversingProperty(path, zk, nodes);
+        return nodes;
+    }
+
+    private static void traversingProperty(String path, ZooKeeper zk, List<Node> nodes) throws KeeperException, InterruptedException {
+        List<String> list = zk.getChildren(path, false);
+        if (path.equals("/")) {
+            path = "";
+        }
+        for (String p : list) {
+            String childPath = path + "/" + p;
+            if (childPath.equals("/zookeeper") || childPath.equals("/dubbo")) {
+                continue;
+            }
+            List<String> children = zk.getChildren(childPath, false);
+            if (children.isEmpty()) {
+                Node node = new Node();
+                node.setPath(childPath);
+                nodes.add(node);
+            } else {
+                traversingProperty(childPath, zk, nodes);
+            }
+        }
+    }
+
 
 }
